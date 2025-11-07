@@ -1,0 +1,1755 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Clone</title>
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.0/dist/peerjs.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #36393f;
+            color: #dcddde;
+            overflow: hidden;
+        }
+
+        /* Регистрация/Вход */
+        .auth-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .auth-box {
+            background: #36393f;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            width: 400px;
+            max-width: 90%;
+        }
+
+        .auth-box h1 {
+            color: #fff;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .auth-box p {
+            color: #b9bbbe;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #b9bbbe;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            background: #202225;
+            border: 1px solid #202225;
+            border-radius: 5px;
+            color: #dcddde;
+            font-size: 16px;
+            transition: border 0.2s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #5865f2;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #5865f2;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #4752c4;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #5865f2;
+            margin-top: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(88, 101, 242, 0.1);
+        }
+
+        /* Главный интерфейс */
+        .app-container {
+            display: none;
+            height: 100vh;
+        }
+
+        .main-layout {
+            display: flex;
+            height: 100%;
+        }
+
+        /* Левая панель серверов */
+        .servers-bar {
+            width: 72px;
+            background: #202225;
+            padding: 12px 0;
+            overflow-y: auto;
+        }
+
+        .server-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 8px;
+            background: #36393f;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 20px;
+            position: relative;
+        }
+
+        .server-icon:hover {
+            border-radius: 15px;
+            background: #5865f2;
+        }
+
+        .server-icon.active {
+            border-radius: 15px;
+            background: #5865f2;
+        }
+
+        .server-icon.home {
+            background: #5865f2;
+        }
+
+        /* Панель каналов */
+        .channels-bar {
+            width: 240px;
+            background: #2f3136;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .server-header {
+            padding: 16px;
+            border-bottom: 1px solid #202225;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .server-header:hover {
+            background: #34373c;
+        }
+
+        .channels-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 8px;
+        }
+
+        .channel-category {
+            margin-bottom: 20px;
+        }
+
+        .category-header {
+            color: #96989d;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            padding: 0 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .channel-item {
+            padding: 8px;
+            margin: 2px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .channel-item:hover {
+            background: #393c43;
+        }
+
+        .channel-item.active {
+            background: #404348;
+        }
+
+        .channel-item::before {
+            content: '#';
+            margin-right: 8px;
+            color: #96989d;
+        }
+
+        .channel-item.voice::before {
+            content: '🔊';
+        }
+
+        /* Панель пользователя */
+        .user-panel {
+            padding: 10px;
+            background: #292b2f;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #5865f2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .user-details {
+            font-size: 14px;
+            overflow: hidden;
+        }
+
+        .user-name {
+            font-weight: bold;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .user-id {
+            font-size: 12px;
+            color: #96989d;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .user-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .user-controls button {
+            background: none;
+            border: none;
+            color: #b9bbbe;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 5px;
+            transition: color 0.2s;
+        }
+
+        .user-controls button:hover {
+            color: #dcddde;
+        }
+
+        /* Основная область чата */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #36393f;
+            min-width: 0;
+        }
+
+        .chat-header {
+            height: 48px;
+            padding: 0 16px;
+            border-bottom: 1px solid #202225;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-header-left::before {
+            content: '#';
+            color: #96989d;
+            font-size: 20px;
+        }
+
+        .chat-header-right {
+            display: flex;
+            gap: 16px;
+        }
+
+        .chat-header button {
+            background: none;
+            border: none;
+            color: #b9bbbe;
+            cursor: pointer;
+            font-size: 20px;
+            transition: color 0.2s;
+        }
+
+        .chat-header button:hover {
+            color: #dcddde;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            padding: 4px 16px;
+            transition: background 0.1s;
+        }
+
+        .message:hover {
+            background: #32353b;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #5865f2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .message-author {
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .message-timestamp {
+            font-size: 12px;
+            color: #72767d;
+        }
+
+        .message-text {
+            color: #dcddde;
+            word-wrap: break-word;
+        }
+
+        .message-input-container {
+            padding: 16px;
+        }
+
+        .message-input {
+            background: #40444b;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            width: 100%;
+            color: #dcddde;
+            font-size: 15px;
+        }
+
+        .message-input:focus {
+            outline: none;
+        }
+
+        /* Правая панель участников */
+        .members-bar {
+            width: 240px;
+            background: #2f3136;
+            padding: 16px 8px;
+            overflow-y: auto;
+        }
+
+        .members-category {
+            margin-bottom: 20px;
+        }
+
+        .members-category-header {
+            color: #96989d;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            padding: 0 8px;
+        }
+
+        .member-item {
+            padding: 8px;
+            margin: 2px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .member-item:hover {
+            background: #393c43;
+        }
+
+        .member-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #5865f2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            font-weight: bold;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            border: 2px solid #2f3136;
+        }
+
+        .status-online {
+            background: #3ba55d;
+        }
+
+        .status-offline {
+            background: #747f8d;
+        }
+
+        /* Модальные окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: #36393f;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #fff;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: #b9bbbe;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Видео звонок */
+        .video-call {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #202225;
+            z-index: 999;
+            flex-direction: column;
+        }
+
+        .video-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            flex-wrap: wrap;
+        }
+
+        .video-wrapper {
+            position: relative;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .video-wrapper video {
+            width: 100%;
+            height: 100%;
+            max-width: 640px;
+            max-height: 480px;
+        }
+
+        .video-label {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .call-controls {
+            padding: 20px;
+            background: #292b2f;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .call-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.2s;
+        }
+
+        .call-btn.mute {
+            background: #3ba55d;
+            color: white;
+        }
+
+        .call-btn.mute.active {
+            background: #ed4245;
+        }
+
+        .call-btn.video {
+            background: #3ba55d;
+            color: white;
+        }
+
+        .call-btn.video.active {
+            background: #ed4245;
+        }
+
+        .call-btn.screen {
+            background: #5865f2;
+            color: white;
+        }
+
+        .call-btn.hangup {
+            background: #ed4245;
+            color: white;
+        }
+
+        .call-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Скроллбары */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #2f3136;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #202225;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #18191c;
+        }
+
+        .add-friend-btn {
+            margin-top: 10px;
+        }
+
+        .peer-id-display {
+            background: #202225;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            word-break: break-all;
+            cursor: pointer;
+        }
+
+        .peer-id-display:hover {
+            background: #2f3136;
+        }
+
+        .connection-status {
+            padding: 8px;
+            background: #ed4245;
+            color: white;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .connection-status.connected {
+            background: #3ba55d;
+        }
+
+        .friend-list {
+            margin-top: 10px;
+        }
+
+        .friend-item {
+            background: #202225;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .friend-item button {
+            background: #ed4245;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .friend-item button:hover {
+            background: #c23538;
+        }
+
+        .settings-section {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #202225;
+        }
+
+        .settings-section h3 {
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        .settings-item {
+            margin-bottom: 15px;
+        }
+
+        .settings-item label {
+            display: block;
+            color: #b9bbbe;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .settings-item input,
+        .settings-item textarea {
+            width: 100%;
+            background: #202225;
+            border: 1px solid #202225;
+            border-radius: 5px;
+            padding: 10px;
+            color: #dcddde;
+            font-size: 14px;
+        }
+
+        .settings-item button {
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .servers-bar {
+                width: 60px;
+            }
+            
+            .channels-bar {
+                width: 200px;
+            }
+            
+            .members-bar {
+                display: none;
+            }
+            
+            .members-bar.show {
+                display: block;
+                position: fixed;
+                right: 0;
+                top: 0;
+                height: 100%;
+                z-index: 100;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Экран авторизации -->
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-box">
+            <h1>Добро пожаловать!</h1>
+            <p>Войдите или зарегистрируйтесь</p>
+            
+            <div class="input-group">
+                <label>Имя пользователя</label>
+                <input type="text" id="username" placeholder="Введите имя">
+            </div>
+            
+            <div class="input-group">
+                <label>Статус</label>
+                <input type="text" id="status" placeholder="Играю в игру..." value="Онлайн">
+            </div>
+
+            <div class="input-group">
+                <label>Цвет аватара</label>
+                <input type="color" id="avatarColor" value="#5865f2">
+            </div>
+            
+            <button class="btn" onclick="login()">Войти</button>
+        </div>
+    </div>
+
+    <!-- Главное приложение -->
+    <div class="app-container" id="appContainer">
+        <div class="main-layout">
+            <!-- Панель серверов -->
+            <div class="servers-bar">
+                <div class="server-icon home active" title="Главная">🏠</div>
+                <div class="server-icon" onclick="showAddServerModal()" title="Добавить сервер">➕</div>
+            </div>
+
+            <!-- Панель каналов -->
+            <div class="channels-bar">
+                <div class="server-header" onclick="showServerMenu()">
+                    Мой Сервер ▼
+                </div>
+                
+                <div class="channels-list">
+                    <div class="channel-category">
+                        <div class="category-header">
+                            Текстовые каналы
+                        </div>
+                        <div class="channel-item active" onclick="switchChannel('general')">
+                            общий
+                        </div>
+                        <div class="channel-item" onclick="switchChannel('random')">
+                            случайное
+                        </div>
+                        <div class="channel-item" onclick="switchChannel('memes')">
+                            мемы
+                        </div>
+                    </div>
+
+                    <div class="channel-category">
+                        <div class="category-header">
+                            Голосовые каналы
+                        </div>
+                        <div class="channel-item voice" onclick="joinVoice('general-voice')">
+                            Общий 🔊
+                        </div>
+                        <div class="channel-item voice" onclick="joinVoice('gaming')">
+                            Игры 🎮
+                        </div>
+                    </div>
+
+                    <div class="channel-category">
+                        <div class="category-header">
+                            Друзья
+                            <button onclick="showAddFriendModal()" style="background:none;border:none;color:#96989d;cursor:pointer;">➕</button>
+                        </div>
+                        <div id="friendsList"></div>
+                    </div>
+                </div>
+
+                <div class="user-panel">
+                    <div class="user-info">
+                        <div class="user-avatar" id="userAvatar">U</div>
+                        <div class="user-details">
+                            <div class="user-name" id="userName">User</div>
+                            <div class="user-id" id="userStatus">Онлайн</div>
+                        </div>
+                    </div>
+                    <div class="user-controls">
+                        <button title="Настройки" onclick="showSettings()">⚙️</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Область чата -->
+            <div class="chat-area">
+                <div class="chat-header">
+                    <div class="chat-header-left">
+                        <span id="channelName">общий</span>
+                    </div>
+                    <div class="chat-header-right">
+                        <button title="Видеозвонок" onclick="startVideoCall()">📹</button>
+                        <button title="Голосовой звонок" onclick="startAudioCall()">📞</button>
+                        <button title="Демонстрация экрана" onclick="shareScreen()">🖥️</button>
+                        <button title="Участники" onclick="toggleMembers()">👥</button>
+                    </div>
+                </div>
+
+                <div id="connectionStatus" class="connection-status">
+                    Подключение...
+                </div>
+
+                <div class="peer-id-display" onclick="copyPeerId()" title="Нажмите чтобы скопировать">
+                    Ваш ID: <strong id="myPeerId">Подключение...</strong>
+                </div>
+
+                <div class="messages-container" id="messagesContainer">
+                    <!-- Сообщения будут здесь -->
+                </div>
+
+                <div class="message-input-container">
+                    <input 
+                        type="text" 
+                        class="message-input" 
+                        id="messageInput" 
+                        placeholder="Написать сообщение в #общий"
+                        onkeypress="handleMessageInput(event)"
+                    >
+                </div>
+            </div>
+
+            <!-- Панель участников -->
+            <div class="members-bar" id="membersBar">
+                <div class="members-category">
+                    <div class="members-category-header">Онлайн — <span id="onlineCount">1</span></div>
+                    <div id="onlineMembers"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Видео звонок -->
+    <div class="video-call" id="videoCall">
+        <div class="video-container" id="videoContainer">
+            <div class="video-wrapper">
+                <video id="localVideo" autoplay muted playsinline></video>
+                <div class="video-label">Вы</div>
+            </div>
+        </div>
+        <div class="call-controls">
+            <button class="call-btn mute" id="muteBtn" onclick="toggleMute()">🎤</button>
+            <button class="call-btn video" id="videoBtn" onclick="toggleVideo()">📹</button>
+            <button class="call-btn screen" id="screenBtn" onclick="toggleScreen()">🖥️</button>
+            <button class="call-btn hangup" onclick="endCall()">📞</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно добавления друга -->
+    <div class="modal" id="addFriendModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Добавить друга</h2>
+                <button class="close-modal" onclick="closeModal('addFriendModal')">✕</button>
+            </div>
+            <div class="input-group">
+                <label>Peer ID друга</label>
+                <input type="text" id="friendPeerId" placeholder="Введите Peer ID">
+            </div>
+            <div class="input-group">
+                <label>Имя друга (опционально)</label>
+                <input type="text" id="friendName" placeholder="Введите имя">
+            </div>
+            <button class="btn" onclick="addFriend()">Добавить</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно настроек -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Настройки</h2>
+                <button class="close-modal" onclick="closeModal('settingsModal')">✕</button>
+            </div>
+
+            <div class="settings-section">
+                <h3>Мой аккаунт</h3>
+                <div class="settings-item">
+                    <label>Имя пользователя</label>
+                    <input type="text" id="settingsUsername" value="">
+                </div>
+                <div class="settings-item">
+                    <label>Статус</label>
+                    <input type="text" id="settingsStatus" value="">
+                </div>
+                <div class="settings-item">
+                    <label>Цвет аватара</label>
+                    <input type="color" id="settingsColor" value="#5865f2">
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Подключение</h3>
+                <div class="settings-item">
+                    <label>Ваш Peer ID</label>
+                    <input type="text" id="settingsPeerId" value="" readonly onclick="this.select()">
+                    <button class="btn" onclick="copyPeerId()">Скопировать ID</button>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Друзья (<span id="friendsCount">0</span>)</h3>
+                <div id="settingsFriendsList"></div>
+            </div>
+
+            <button class="btn" onclick="saveSettings()">Сохранить изменения</button>
+        </div>
+    </div>
+
+    <script>
+        // Глобальные переменные
+        let peer = null;
+        let currentUser = null;
+        let connections = {};
+        let localStream = null;
+        let screenStream = null;
+        let currentChannel = 'general';
+        let messages = {};
+        let friends = [];
+
+        // ИСПРАВЛЕНО: Функция сохранения профиля БЕЗ автоскачивания
+        function saveProfile(profile) {
+            localStorage.setItem('discordProfile', JSON.stringify(profile));
+            console.log('✅ Профиль сохранен в localStorage');
+        }
+
+        // Функция загрузки профиля
+        function loadProfile() {
+            const saved = localStorage.getItem('discordProfile');
+            if (saved) {
+                return JSON.parse(saved);
+            }
+            return null;
+        }
+
+        // ИСПРАВЛЕНО: Функция сохранения друзей
+        function saveFriends() {
+            localStorage.setItem('discordFriends', JSON.stringify(friends));
+            if (currentUser) {
+                currentUser.friends = friends;
+                saveProfile(currentUser);
+            }
+            console.log('✅ Друзья сохранены:', friends.length);
+        }
+
+        // ИСПРАВЛЕНО: Функция загрузки друзей
+        function loadFriendsFromStorage() {
+            const saved = localStorage.getItem('discordFriends');
+            if (saved) {
+                friends = JSON.parse(saved);
+                console.log('📖 Загружено друзей:', friends.length);
+            }
+            
+            // Также пробуем из профиля
+            const profile = loadProfile();
+            if (profile && profile.friends && profile.friends.length > 0 && friends.length === 0) {
+                friends = profile.friends;
+                saveFriends();
+            }
+        }
+
+        // Вход
+        function login() {
+            const username = document.getElementById('username').value.trim();
+            const status = document.getElementById('status').value.trim();
+            const avatarColor = document.getElementById('avatarColor').value;
+
+            if (!username) {
+                alert('Введите имя пользователя!');
+                return;
+            }
+
+            currentUser = {
+                username,
+                status,
+                avatarColor,
+                peerId: null,
+                friends: []
+            };
+
+            saveProfile(currentUser);
+            initApp();
+        }
+
+        // Инициализация приложения
+        function initApp() {
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+
+            // Установка информации о пользователе
+            document.getElementById('userName').textContent = currentUser.username;
+            document.getElementById('userStatus').textContent = currentUser.status;
+            document.getElementById('userAvatar').textContent = currentUser.username[0].toUpperCase();
+            document.getElementById('userAvatar').style.background = currentUser.avatarColor;
+
+            // ИСПРАВЛЕНО: Загружаем друзей ДО инициализации peer
+            loadFriendsFromStorage();
+
+            // Инициализация PeerJS
+            initPeer();
+
+            // Инициализация сообщений
+            if (!messages[currentChannel]) {
+                messages[currentChannel] = [];
+            }
+            addSystemMessage('Добро пожаловать в чат!');
+        }
+
+        // Инициализация PeerJS
+        function initPeer() {
+            peer = new Peer({
+                host: '0.peerjs.com',
+                port: 443,
+                path: '/',
+                secure: true,
+                config: {
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' }
+                    ]
+                }
+            });
+
+            peer.on('open', (id) => {
+                console.log('✅ Мой Peer ID:', id);
+                currentUser.peerId = id;
+                document.getElementById('myPeerId').textContent = id;
+                document.getElementById('connectionStatus').textContent = 'Подключено ✅';
+                document.getElementById('connectionStatus').classList.add('connected');
+                saveProfile(currentUser);
+                
+                // Подключаемся к друзьям
+                connectToFriends();
+                
+                // Обновляем UI
+                loadFriends();
+            });
+
+            peer.on('connection', (conn) => {
+                setupConnection(conn);
+            });
+
+            peer.on('call', (call) => {
+                handleIncomingCall(call);
+            });
+
+            peer.on('error', (err) => {
+                console.error('❌ Peer error:', err);
+                document.getElementById('connectionStatus').textContent = 'Ошибка подключения ❌';
+                
+                // Пробуем переподключиться
+                setTimeout(() => {
+                    if (peer && peer.disconnected) {
+                        peer.reconnect();
+                    }
+                }, 3000);
+            });
+
+            peer.on('disconnected', () => {
+                console.log('🔌 Отключено от сервера');
+                document.getElementById('connectionStatus').textContent = 'Переподключение...';
+                document.getElementById('connectionStatus').classList.remove('connected');
+                
+                // Автоматическое переподключение
+                setTimeout(() => {
+                    if (peer && peer.disconnected) {
+                        peer.reconnect();
+                    }
+                }, 2000);
+            });
+        }
+
+        // Настройка соединения
+        function setupConnection(conn) {
+            connections[conn.peer] = conn;
+
+            conn.on('open', () => {
+                console.log('✅ Соединение установлено с:', conn.peer);
+                
+                // Отправляем информацию о себе
+                conn.send({
+                    type: 'userInfo',
+                    data: {
+                        username: currentUser.username,
+                        status: currentUser.status,
+                        avatarColor: currentUser.avatarColor,
+                        peerId: peer.id
+                    }
+                });
+
+                updateOnlineMembers();
+            });
+
+            conn.on('data', (data) => {
+                handleData(data, conn.peer);
+            });
+
+            conn.on('close', () => {
+                console.log('🔌 Соединение закрыто:', conn.peer);
+                delete connections[conn.peer];
+                updateOnlineMembers();
+            });
+
+            conn.on('error', (err) => {
+                console.error('❌ Ошибка соединения:', err);
+            });
+        }
+
+        // Обработка данных
+        function handleData(data, peerId) {
+            switch(data.type) {
+                case 'message':
+                    receiveMessage(data.data, peerId);
+                    break;
+                case 'userInfo':
+                    updateUserInfo(peerId, data.data);
+                    break;
+            }
+        }
+
+        // Отправка сообщения
+        function sendMessage(text) {
+            if (!text.trim()) return;
+
+            const message = {
+                id: Date.now(),
+                author: currentUser.username,
+                authorColor: currentUser.avatarColor,
+                text: text,
+                timestamp: new Date(),
+                channel: currentChannel
+            };
+
+            // Добавляем свое сообщение
+            addMessage(message);
+
+            // Отправляем всем подключенным
+            Object.values(connections).forEach(conn => {
+                if (conn.open) {
+                    conn.send({
+                        type: 'message',
+                        data: message
+                    });
+                }
+            });
+
+            // Сохраняем в историю
+            if (!messages[currentChannel]) {
+                messages[currentChannel] = [];
+            }
+            messages[currentChannel].push(message);
+        }
+
+        // Получение сообщения
+        function receiveMessage(message, peerId) {
+            if (message.channel === currentChannel) {
+                addMessage(message);
+            }
+            
+            if (!messages[message.channel]) {
+                messages[message.channel] = [];
+            }
+            messages[message.channel].push(message);
+        }
+
+        // Добавление сообщения в UI
+        function addMessage(message) {
+            const container = document.getElementById('messagesContainer');
+            const messageEl = document.createElement('div');
+            messageEl.className = 'message';
+
+            const time = new Date(message.timestamp).toLocaleTimeString('ru-RU', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            messageEl.innerHTML = `
+                <div class="message-avatar" style="background: ${message.authorColor || '#5865f2'}">
+                    ${message.author[0].toUpperCase()}
+                </div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-author">${message.author}</span>
+                        <span class="message-timestamp">${time}</span>
+                    </div>
+                    <div class="message-text">${escapeHtml(message.text)}</div>
+                </div>
+            `;
+
+            container.appendChild(messageEl);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Системное сообщение
+        function addSystemMessage(text) {
+            addMessage({
+                author: 'Система',
+                authorColor: '#5865f2',
+                text: text,
+                timestamp: new Date(),
+                channel: currentChannel
+            });
+        }
+
+        // Обработка ввода сообщения
+        function handleMessageInput(event) {
+            if (event.key === 'Enter') {
+                const input = document.getElementById('messageInput');
+                sendMessage(input.value);
+                input.value = '';
+            }
+        }
+
+        // Добавление друга
+        function showAddFriendModal() {
+            document.getElementById('addFriendModal').style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function addFriend() {
+            const peerId = document.getElementById('friendPeerId').value.trim();
+            const name = document.getElementById('friendName').value.trim() || 'Друг';
+
+            if (!peerId) {
+                alert('Введите Peer ID!');
+                return;
+            }
+
+            if (peerId === peer.id) {
+                alert('Нельзя добавить самого себя!');
+                return;
+            }
+
+            // Проверяем, не добавлен ли уже
+            if (friends.find(f => f.peerId === peerId)) {
+                alert('Друг уже добавлен!');
+                return;
+            }
+
+            const friend = {
+                peerId,
+                name,
+                username: name,
+                status: 'Оффлайн',
+                avatarColor: '#' + Math.floor(Math.random()*16777215).toString(16)
+            };
+
+            friends.push(friend);
+            saveFriends();
+            loadFriends();
+
+            // Подключаемся к другу
+            connectToPeer(peerId);
+
+            closeModal('addFriendModal');
+            document.getElementById('friendPeerId').value = '';
+            document.getElementById('friendName').value = '';
+
+            alert('Друг добавлен! ID: ' + peerId);
+        }
+
+        function connectToPeer(peerId) {
+            if (connections[peerId]) {
+                console.log('⚠️ Уже подключен к:', peerId);
+                return;
+            }
+
+            console.log('🔗 Подключаемся к:', peerId);
+            const conn = peer.connect(peerId);
+            setupConnection(conn);
+        }
+
+        function connectToFriends() {
+            console.log('🔗 Подключаемся к друзьям:', friends.length);
+            friends.forEach(friend => {
+                setTimeout(() => {
+                    connectToPeer(friend.peerId);
+                }, 1000);
+            });
+        }
+
+        function updateUserInfo(peerId, info) {
+            const friend = friends.find(f => f.peerId === peerId);
+            if (friend) {
+                friend.username = info.username;
+                friend.status = info.status;
+                friend.avatarColor = info.avatarColor;
+                saveFriends();
+                loadFriends();
+            } else {
+                // Добавляем нового друга автоматически
+                friends.push({
+                    peerId,
+                    name: info.username,
+                    username: info.username,
+                    status: info.status,
+                    avatarColor: info.avatarColor
+                });
+                saveFriends();
+                loadFriends();
+            }
+            updateOnlineMembers();
+        }
+
+        function loadFriends() {
+            const friendsList = document.getElementById('friendsList');
+            friendsList.innerHTML = '';
+
+            friends.forEach(friend => {
+                const isOnline = connections[friend.peerId] && connections[friend.peerId].open;
+                
+                const friendEl = document.createElement('div');
+                friendEl.className = 'member-item';
+                friendEl.innerHTML = `
+                    <div class="member-avatar" style="background: ${friend.avatarColor}">
+                        ${friend.username[0].toUpperCase()}
+                        <div class="status-indicator ${isOnline ? 'status-online' : 'status-offline'}"></div>
+                    </div>
+                    <div style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis;">${friend.username}</div>
+                `;
+                friendEl.onclick = () => startPrivateChat(friend);
+                friendsList.appendChild(friendEl);
+            });
+
+            console.log('📋 Список друзей обновлен:', friends.length);
+        }
+
+        function updateOnlineMembers() {
+            const membersContainer = document.getElementById('onlineMembers');
+            membersContainer.innerHTML = '';
+
+            // Добавляем себя
+            const myItem = document.createElement('div');
+            myItem.className = 'member-item';
+            myItem.innerHTML = `
+                <div class="member-avatar" style="background: ${currentUser.avatarColor}">
+                    ${currentUser.username[0].toUpperCase()}
+                    <div class="status-indicator status-online"></div>
+                </div>
+                <div>${currentUser.username} (Вы)</div>
+            `;
+            membersContainer.appendChild(myItem);
+
+            // Добавляем онлайн друзей
+            let onlineCount = 1;
+            friends.forEach(friend => {
+                if (connections[friend.peerId] && connections[friend.peerId].open) {
+                    onlineCount++;
+                    const memberEl = document.createElement('div');
+                    memberEl.className = 'member-item';
+                    memberEl.innerHTML = `
+                        <div class="member-avatar" style="background: ${friend.avatarColor}">
+                            ${friend.username[0].toUpperCase()}
+                            <div class="status-indicator status-online"></div>
+                        </div>
+                        <div>${friend.username}</div>
+                    `;
+                    membersContainer.appendChild(memberEl);
+                }
+            });
+
+            document.getElementById('onlineCount').textContent = onlineCount;
+        }
+
+        // Переключение каналов
+        function switchChannel(channel) {
+            currentChannel = channel;
+            document.getElementById('channelName').textContent = channel;
+            
+            // Обновляем активный канал в UI
+            document.querySelectorAll('.channel-item').forEach(el => {
+                el.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Загружаем сообщения канала
+            const container = document.getElementById('messagesContainer');
+            container.innerHTML = '';
+            
+            if (messages[channel]) {
+                messages[channel].forEach(msg => addMessage(msg));
+            }
+        }
+
+        // ИСПРАВЛЕНО: Настройки
+        function showSettings() {
+            const modal = document.getElementById('settingsModal');
+            
+            // Заполняем данные
+            document.getElementById('settingsUsername').value = currentUser.username;
+            document.getElementById('settingsStatus').value = currentUser.status;
+            document.getElementById('settingsColor').value = currentUser.avatarColor;
+            document.getElementById('settingsPeerId').value = peer.id || 'Подключение...';
+            document.getElementById('friendsCount').textContent = friends.length;
+            
+            // Список друзей
+            const settingsFriendsList = document.getElementById('settingsFriendsList');
+            settingsFriendsList.innerHTML = '';
+            
+            friends.forEach((friend, index) => {
+                const isOnline = connections[friend.peerId] && connections[friend.peerId].open;
+                const friendEl = document.createElement('div');
+                friendEl.className = 'friend-item';
+                friendEl.innerHTML = `
+                    <div>
+                        <strong>${friend.username}</strong> ${isOnline ? '🟢' : '🔴'}<br>
+                        <small>${friend.peerId}</small>
+                    </div>
+                    <button onclick="removeFriend(${index})">Удалить</button>
+                `;
+                settingsFriendsList.appendChild(friendEl);
+            });
+            
+            modal.style.display = 'flex';
+        }
+
+        function saveSettings() {
+            const newUsername = document.getElementById('settingsUsername').value.trim();
+            const newStatus = document.getElementById('settingsStatus').value.trim();
+            const newColor = document.getElementById('settingsColor').value;
+            
+            if (newUsername) {
+                currentUser.username = newUsername;
+                currentUser.status = newStatus;
+                currentUser.avatarColor = newColor;
+                
+                document.getElementById('userName').textContent = newUsername;
+                document.getElementById('userStatus').textContent = newStatus;
+                document.getElementById('userAvatar').textContent = newUsername[0].toUpperCase();
+                document.getElementById('userAvatar').style.background = newColor;
+                
+                saveProfile(currentUser);
+                
+                // Отправляем обновленную информацию всем
+                Object.values(connections).forEach(conn => {
+                    if (conn.open) {
+                        conn.send({
+                            type: 'userInfo',
+                            data: {
+                                username: currentUser.username,
+                                status: currentUser.status,
+                                avatarColor: currentUser.avatarColor,
+                                peerId: peer.id
+                            }
+                        });
+                    }
+                });
+                
+                alert('Настройки сохранены!');
+                closeModal('settingsModal');
+            }
+        }
+
+        function removeFriend(index) {
+            if (confirm('Удалить этого друга?')) {
+                const friend = friends[index];
+                
+                // Закрываем соединение
+                if (connections[friend.peerId]) {
+                    connections[friend.peerId].close();
+                    delete connections[friend.peerId];
+                }
+                
+                friends.splice(index, 1);
+                saveFriends();
+                loadFriends();
+                showSettings(); // Обновляем модальное окно
+                updateOnlineMembers();
+            }
+        }
+
+        function copyPeerId() {
+            const peerId = peer.id;
+            if (peerId) {
+                navigator.clipboard.writeText(peerId).then(() => {
+                    alert('ID скопирован: ' + peerId);
+                }).catch(() => {
+                    prompt('Ваш Peer ID (скопируйте):', peerId);
+                });
+            }
+        }
+
+        // Видео звонок
+        async function startVideoCall() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: true
+                });
+
+                document.getElementById('localVideo').srcObject = localStream;
+                document.getElementById('videoCall').style.display = 'flex';
+
+                Object.keys(connections).forEach(peerId => {
+                    const call = peer.call(peerId, localStream);
+                    handleCall(call);
+                });
+            } catch(err) {
+                console.error('Ошибка доступа к камере:', err);
+                alert('Не удалось получить доступ к камере и микрофону');
+            }
+        }
+
+        async function startAudioCall() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: false,
+                    audio: true
+                });
+
+                document.getElementById('videoCall').style.display = 'flex';
+                document.getElementById('localVideo').style.display = 'none';
+
+                Object.keys(connections).forEach(peerId => {
+                    const call = peer.call(peerId, localStream);
+                    handleCall(call);
+                });
+            } catch(err) {
+                console.error('Ошибка доступа к микрофону:', err);
+                alert('Не удалось получить доступ к микрофону');
+            }
+        }
+
+        async function shareScreen() {
+            try {
+                screenStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: true
+                });
+
+                document.getElementById('videoCall').style.display = 'flex';
+                document.getElementById('localVideo').srcObject = screenStream;
+
+                Object.keys(connections).forEach(peerId => {
+                    const call = peer.call(peerId, screenStream);
+                    handleCall(call);
+                });
+
+                screenStream.getVideoTracks()[0].onended = () => {
+                    toggleScreen();
+                };
+            } catch(err) {
+                console.error('Ошибка демонстрации экрана:', err);
+            }
+        }
+
+        function handleIncomingCall(call) {
+            call.answer(localStream);
+            handleCall(call);
+        }
+
+        function handleCall(call) {
+            call.on('stream', (remoteStream) => {
+                addRemoteVideo(remoteStream, call.peer);
+            });
+
+            call.on('close', () => {
+                removeRemoteVideo(call.peer);
+            });
+        }
+
+        function addRemoteVideo(stream, peerId) {
+            const container = document.getElementById('videoContainer');
+            
+            let wrapper = document.getElementById('remote-' + peerId);
+            if (!wrapper) {
+                wrapper = document.createElement('div');
+                wrapper.className = 'video-wrapper';
+                wrapper.id = 'remote-' + peerId;
+                
+                const video = document.createElement('video');
+                video.autoplay = true;
+                video.playsinline = true;
+                video.srcObject = stream;
+                
+                const friend = friends.find(f => f.peerId === peerId);
+                const label = document.createElement('div');
+                label.className = 'video-label';
+                label.textContent = friend ? friend.username : 'Пользователь';
+                
+                wrapper.appendChild(video);
+                wrapper.appendChild(label);
+                container.appendChild(wrapper);
+            }
+        }
+
+        function removeRemoteVideo(peerId) {
+            const wrapper = document.getElementById('remote-' + peerId);
+            if (wrapper) {
+                wrapper.remove();
+            }
+        }
+
+        function toggleMute() {
+            if (localStream) {
+                const audioTrack = localStream.getAudioTracks()[0];
+                if (audioTrack) {
+                    audioTrack.enabled = !audioTrack.enabled;
+                    document.getElementById('muteBtn').classList.toggle('active');
+                }
+            }
+        }
+
+        function toggleVideo() {
+            if (localStream) {
+                const videoTrack = localStream.getVideoTracks()[0];
+                if (videoTrack) {
+                    videoTrack.enabled = !videoTrack.enabled;
+                    document.getElementById('videoBtn').classList.toggle('active');
+                }
+            }
+        }
+
+        function toggleScreen() {
+            if (screenStream) {
+                screenStream.getTracks().forEach(track => track.stop());
+                screenStream = null;
+                document.getElementById('screenBtn').classList.remove('active');
+            } else {
+                shareScreen();
+                document.getElementById('screenBtn').classList.add('active');
+            }
+        }
+
+        function endCall() {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            if (screenStream) {
+                screenStream.getTracks().forEach(track => track.stop());
+                screenStream = null;
+            }
+
+            document.getElementById('videoCall').style.display = 'none';
+            
+            const container = document.getElementById('videoContainer');
+            container.querySelectorAll('.video-wrapper:not(:first-child)').forEach(el => el.remove());
+        }
+
+        function toggleMembers() {
+            const bar = document.getElementById('membersBar');
+            bar.classList.toggle('show');
+        }
+
+        function joinVoice(channel) {
+            addSystemMessage('Присоединились к голосовому каналу: ' + channel);
+            startAudioCall();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function startPrivateChat(friend) {
+            switchChannel('dm-' + friend.peerId);
+            document.getElementById('channelName').textContent = '@ ' + friend.username;
+        }
+
+        function showAddServerModal() {
+            alert('Функция добавления серверов в разработке!');
+        }
+
+        function showServerMenu() {
+            alert('Меню сервера');
+        }
+
+        // Автозагрузка профиля при запуске
+        window.onload = () => {
+            const profile = loadProfile();
+            if (profile) {
+                document.getElementById('username').value = profile.username;
+                document.getElementById('status').value = profile.status;
+                document.getElementById('avatarColor').value = profile.avatarColor;
+            }
+        };
+
+        // Периодическое обновление
+        setInterval(() => {
+            updateOnlineMembers();
+        }, 10000);
+    </script>
+</body>
+</html>
