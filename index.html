@@ -6,6 +6,40 @@
     <title>Discord Clone</title>
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.0/dist/peerjs.min.js"></script>
     <style>
+        :root {
+            /* Темная тема (по умолчанию) */
+            --bg-gradient-start: #667eea;
+            --bg-gradient-end: #764ba2;
+            --bg-primary: #36393f;
+            --bg-secondary: #2f3136;
+            --bg-tertiary: #202225;
+            --bg-quaternary: #292b2f;
+            --bg-hover: #34373c;
+            --bg-active: #393c43;
+            --text-normal: #dcddde;
+            --text-muted: #b9bbbe;
+            --text-dark: #72767d;
+            --brand-color: #5865f2;
+            --brand-hover: #4752c4;
+        }
+
+        /* Светлая тема */
+        body.light-theme {
+            --bg-gradient-start: #667eea;
+            --bg-gradient-end: #764ba2;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f2f3f5;
+            --bg-tertiary: #e3e5e8;
+            --bg-quaternary: #ebedef;
+            --bg-hover: #e8e9eb;
+            --bg-active: #d4d6d9;
+            --text-normal: #2e3338;
+            --text-muted: #4e5058;
+            --text-dark: #6a6d75;
+            --brand-color: #5865f2;
+            --brand-hover: #4752c4;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -14,9 +48,10 @@
         }
 
         body {
-            background: #36393f;
-            color: #dcddde;
+            background: var(--bg-primary);
+            color: var(--text-normal);
             overflow: hidden;
+            transition: all 0.3s ease;
         }
 
         /* Регистрация/Вход */
@@ -25,11 +60,11 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
         }
 
         .auth-box {
-            background: #36393f;
+            background: var(--bg-primary);
             padding: 40px;
             border-radius: 10px;
             box-shadow: 0 8px 30px rgba(0,0,0,0.3);
@@ -38,13 +73,13 @@
         }
 
         .auth-box h1 {
-            color: #fff;
+            color: var(--text-normal);
             margin-bottom: 10px;
             text-align: center;
         }
 
         .auth-box p {
-            color: #b9bbbe;
+            color: var(--text-muted);
             margin-bottom: 30px;
             text-align: center;
         }
@@ -56,7 +91,7 @@
         .input-group label {
             display: block;
             margin-bottom: 8px;
-            color: #b9bbbe;
+            color: var(--text-muted);
             font-size: 12px;
             font-weight: bold;
             text-transform: uppercase;
@@ -65,23 +100,49 @@
         .input-group input {
             width: 100%;
             padding: 12px;
-            background: #202225;
-            border: 1px solid #202225;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--bg-tertiary);
             border-radius: 5px;
-            color: #dcddde;
+            color: var(--text-normal);
             font-size: 16px;
             transition: border 0.2s;
         }
 
         .input-group input:focus {
             outline: none;
-            border-color: #5865f2;
+            border-color: var(--brand-color);
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-picker-wrapper input[type="color"] {
+            width: 60px;
+            height: 50px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .color-preview {
+            flex: 1;
+            height: 50px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
         }
 
         .btn {
             width: 100%;
             padding: 12px;
-            background: #5865f2;
+            background: var(--brand-color);
             border: none;
             border-radius: 5px;
             color: white;
@@ -92,12 +153,12 @@
         }
 
         .btn:hover {
-            background: #4752c4;
+            background: var(--brand-hover);
         }
 
         .btn-secondary {
             background: transparent;
-            color: #5865f2;
+            color: var(--brand-color);
             margin-top: 10px;
         }
 
@@ -119,7 +180,7 @@
         /* Левая панель серверов */
         .servers-bar {
             width: 72px;
-            background: #202225;
+            background: var(--bg-tertiary);
             padding: 12px 0;
             overflow-y: auto;
         }
@@ -128,7 +189,7 @@
             width: 48px;
             height: 48px;
             margin: 0 auto 8px;
-            background: #36393f;
+            background: var(--bg-primary);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -141,36 +202,36 @@
 
         .server-icon:hover {
             border-radius: 15px;
-            background: #5865f2;
+            background: var(--brand-color);
         }
 
         .server-icon.active {
             border-radius: 15px;
-            background: #5865f2;
+            background: var(--brand-color);
         }
 
         .server-icon.home {
-            background: #5865f2;
+            background: var(--brand-color);
         }
 
         /* Панель каналов */
         .channels-bar {
             width: 240px;
-            background: #2f3136;
+            background: var(--bg-secondary);
             display: flex;
             flex-direction: column;
         }
 
         .server-header {
             padding: 16px;
-            border-bottom: 1px solid #202225;
+            border-bottom: 1px solid var(--bg-tertiary);
             font-weight: bold;
             cursor: pointer;
             transition: background 0.2s;
         }
 
         .server-header:hover {
-            background: #34373c;
+            background: var(--bg-hover);
         }
 
         .channels-list {
@@ -184,7 +245,7 @@
         }
 
         .category-header {
-            color: #96989d;
+            color: var(--text-dark);
             font-size: 12px;
             font-weight: bold;
             text-transform: uppercase;
@@ -206,17 +267,17 @@
         }
 
         .channel-item:hover {
-            background: #393c43;
+            background: var(--bg-hover);
         }
 
         .channel-item.active {
-            background: #404348;
+            background: var(--bg-active);
         }
 
         .channel-item::before {
             content: '#';
             margin-right: 8px;
-            color: #96989d;
+            color: var(--text-dark);
         }
 
         .channel-item.voice::before {
@@ -226,7 +287,7 @@
         /* Панель пользователя */
         .user-panel {
             padding: 10px;
-            background: #292b2f;
+            background: var(--bg-quaternary);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -243,7 +304,7 @@
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: #5865f2;
+            background: var(--brand-color);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -266,7 +327,7 @@
 
         .user-id {
             font-size: 12px;
-            color: #96989d;
+            color: var(--text-dark);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -280,7 +341,7 @@
         .user-controls button {
             background: none;
             border: none;
-            color: #b9bbbe;
+            color: var(--text-muted);
             cursor: pointer;
             font-size: 18px;
             padding: 5px;
@@ -288,7 +349,7 @@
         }
 
         .user-controls button:hover {
-            color: #dcddde;
+            color: var(--text-normal);
         }
 
         /* Основная область чата */
@@ -296,14 +357,14 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: #36393f;
+            background: var(--bg-primary);
             min-width: 0;
         }
 
         .chat-header {
             height: 48px;
             padding: 0 16px;
-            border-bottom: 1px solid #202225;
+            border-bottom: 1px solid var(--bg-tertiary);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -317,7 +378,7 @@
 
         .chat-header-left::before {
             content: '#';
-            color: #96989d;
+            color: var(--text-dark);
             font-size: 20px;
         }
 
@@ -329,14 +390,14 @@
         .chat-header button {
             background: none;
             border: none;
-            color: #b9bbbe;
+            color: var(--text-muted);
             cursor: pointer;
             font-size: 20px;
             transition: color 0.2s;
         }
 
         .chat-header button:hover {
-            color: #dcddde;
+            color: var(--text-normal);
         }
 
         .messages-container {
@@ -353,14 +414,14 @@
         }
 
         .message:hover {
-            background: #32353b;
+            background: var(--bg-hover);
         }
 
         .message-avatar {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: #5865f2;
+            background: var(--brand-color);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -387,11 +448,11 @@
 
         .message-timestamp {
             font-size: 12px;
-            color: #72767d;
+            color: var(--text-dark);
         }
 
         .message-text {
-            color: #dcddde;
+            color: var(--text-normal);
             word-wrap: break-word;
         }
 
@@ -400,12 +461,12 @@
         }
 
         .message-input {
-            background: #40444b;
+            background: var(--bg-hover);
             border: none;
             border-radius: 8px;
             padding: 12px;
             width: 100%;
-            color: #dcddde;
+            color: var(--text-normal);
             font-size: 15px;
         }
 
@@ -416,7 +477,7 @@
         /* Правая панель участников */
         .members-bar {
             width: 240px;
-            background: #2f3136;
+            background: var(--bg-secondary);
             padding: 16px 8px;
             overflow-y: auto;
         }
@@ -426,7 +487,7 @@
         }
 
         .members-category-header {
-            color: #96989d;
+            color: var(--text-dark);
             font-size: 12px;
             font-weight: bold;
             text-transform: uppercase;
@@ -445,14 +506,14 @@
         }
 
         .member-item:hover {
-            background: #393c43;
+            background: var(--bg-hover);
         }
 
         .member-avatar {
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: #5865f2;
+            background: var(--brand-color);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -469,7 +530,7 @@
             position: absolute;
             bottom: -2px;
             right: -2px;
-            border: 2px solid #2f3136;
+            border: 2px solid var(--bg-secondary);
         }
 
         .status-online {
@@ -495,7 +556,7 @@
         }
 
         .modal-content {
-            background: #36393f;
+            background: var(--bg-primary);
             border-radius: 10px;
             padding: 30px;
             max-width: 500px;
@@ -512,13 +573,13 @@
         }
 
         .modal-header h2 {
-            color: #fff;
+            color: var(--text-normal);
         }
 
         .close-modal {
             background: none;
             border: none;
-            color: #b9bbbe;
+            color: var(--text-muted);
             font-size: 24px;
             cursor: pointer;
         }
@@ -531,7 +592,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #202225;
+            background: var(--bg-tertiary);
             z-index: 999;
             flex-direction: column;
         }
@@ -572,7 +633,7 @@
 
         .call-controls {
             padding: 20px;
-            background: #292b2f;
+            background: var(--bg-quaternary);
             display: flex;
             justify-content: center;
             gap: 20px;
@@ -607,7 +668,7 @@
         }
 
         .call-btn.screen {
-            background: #5865f2;
+            background: var(--brand-color);
             color: white;
         }
 
@@ -626,16 +687,16 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: #2f3136;
+            background: var(--bg-secondary);
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #202225;
+            background: var(--bg-tertiary);
             border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #18191c;
+            background: var(--bg-quaternary);
         }
 
         .add-friend-btn {
@@ -643,7 +704,7 @@
         }
 
         .peer-id-display {
-            background: #202225;
+            background: var(--bg-tertiary);
             padding: 10px;
             border-radius: 5px;
             margin-bottom: 10px;
@@ -653,7 +714,7 @@
         }
 
         .peer-id-display:hover {
-            background: #2f3136;
+            background: var(--bg-hover);
         }
 
         .connection-status {
@@ -673,7 +734,7 @@
         }
 
         .friend-item {
-            background: #202225;
+            background: var(--bg-tertiary);
             padding: 10px;
             border-radius: 5px;
             margin-bottom: 5px;
@@ -699,11 +760,11 @@
         .settings-section {
             margin-bottom: 20px;
             padding-bottom: 20px;
-            border-bottom: 1px solid #202225;
+            border-bottom: 1px solid var(--bg-tertiary);
         }
 
         .settings-section h3 {
-            color: #fff;
+            color: var(--text-normal);
             margin-bottom: 15px;
         }
 
@@ -713,24 +774,129 @@
 
         .settings-item label {
             display: block;
-            color: #b9bbbe;
+            color: var(--text-muted);
             margin-bottom: 5px;
             font-size: 14px;
         }
 
         .settings-item input,
-        .settings-item textarea {
+        .settings-item textarea,
+        .settings-item select {
             width: 100%;
-            background: #202225;
-            border: 1px solid #202225;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--bg-tertiary);
             border-radius: 5px;
             padding: 10px;
-            color: #dcddde;
+            color: var(--text-normal);
             font-size: 14px;
         }
 
         .settings-item button {
             margin-top: 10px;
+        }
+
+        .theme-selector {
+            display: flex;
+            gap: 10px;
+        }
+
+        .theme-option {
+            flex: 1;
+            padding: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .theme-option.dark {
+            background: #36393f;
+            color: #dcddde;
+        }
+
+        .theme-option.light {
+            background: #ffffff;
+            color: #2e3338;
+            border: 1px solid #e3e5e8;
+        }
+
+        .theme-option.active {
+            border-color: var(--brand-color);
+        }
+
+        .theme-option:hover {
+            transform: scale(1.05);
+        }
+
+        .theme-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        /* Индикатор входящего звонка */
+        .incoming-call {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-secondary);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            text-align: center;
+            min-width: 300px;
+        }
+
+        .incoming-call-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .incoming-call-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .incoming-call-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            transition: transform 0.2s;
+        }
+
+        .incoming-call-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .incoming-call-btn.accept {
+            background: #3ba55d;
+            color: white;
+        }
+
+        .incoming-call-btn.reject {
+            background: #ed4245;
+            color: white;
         }
 
         @media (max-width: 768px) {
@@ -763,24 +929,35 @@
     <div class="auth-screen" id="authScreen">
         <div class="auth-box">
             <h1>Добро пожаловать!</h1>
-            <p>Войдите или зарегистрируйтесь</p>
+            <p>Создайте свой профиль</p>
             
             <div class="input-group">
                 <label>Имя пользователя</label>
-                <input type="text" id="username" placeholder="Введите имя">
-            </div>
-            
-            <div class="input-group">
-                <label>Статус</label>
-                <input type="text" id="status" placeholder="Играю в игру..." value="Онлайн">
+                <input type="text" id="username" placeholder="Введите ваше имя" maxlength="32">
             </div>
 
             <div class="input-group">
-                <label>Цвет аватара</label>
-                <input type="color" id="avatarColor" value="#5865f2">
+                <label>Цвет профиля</label>
+                <div class="color-picker-wrapper">
+                    <input type="color" id="avatarColor" value="#5865f2" onchange="updateColorPreview()">
+                    <div class="color-preview" id="colorPreview" style="background: #5865f2;">
+                        <span id="previewInitial">У</span>
+                    </div>
+                </div>
             </div>
             
             <button class="btn" onclick="login()">Войти</button>
+        </div>
+    </div>
+
+    <!-- Индикатор входящего звонка -->
+    <div class="incoming-call" id="incomingCall">
+        <div class="incoming-call-avatar" id="callerAvatar"></div>
+        <h2 id="callerName">Входящий звонок...</h2>
+        <p style="color: var(--text-muted);">от пользователя</p>
+        <div class="incoming-call-buttons">
+            <button class="incoming-call-btn accept" onclick="acceptCall()">📞</button>
+            <button class="incoming-call-btn reject" onclick="rejectCall()">✕</button>
         </div>
     </div>
 
@@ -830,7 +1007,7 @@
                     <div class="channel-category">
                         <div class="category-header">
                             Друзья
-                            <button onclick="showAddFriendModal()" style="background:none;border:none;color:#96989d;cursor:pointer;">➕</button>
+                            <button onclick="showAddFriendModal()" style="background:none;border:none;color:var(--text-dark);cursor:pointer;">➕</button>
                         </div>
                         <div id="friendsList"></div>
                     </div>
@@ -941,23 +1118,38 @@
             </div>
 
             <div class="settings-section">
-                <h3>Мой аккаунт</h3>
+                <h3>🎨 Тема оформления</h3>
+                <div class="theme-selector">
+                    <div class="theme-option dark active" onclick="changeTheme('dark')">
+                        <div class="theme-icon">🌙</div>
+                        <strong>Темная</strong>
+                    </div>
+                    <div class="theme-option light" onclick="changeTheme('light')">
+                        <div class="theme-icon">☀️</div>
+                        <strong>Светлая</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>👤 Мой аккаунт</h3>
                 <div class="settings-item">
                     <label>Имя пользователя</label>
                     <input type="text" id="settingsUsername" value="">
                 </div>
                 <div class="settings-item">
-                    <label>Статус</label>
-                    <input type="text" id="settingsStatus" value="">
-                </div>
-                <div class="settings-item">
-                    <label>Цвет аватара</label>
-                    <input type="color" id="settingsColor" value="#5865f2">
+                    <label>Цвет профиля</label>
+                    <div class="color-picker-wrapper">
+                        <input type="color" id="settingsColor" value="#5865f2" onchange="updateSettingsPreview()">
+                        <div class="color-preview" id="settingsColorPreview" style="background: #5865f2;">
+                            <span id="settingsPreviewInitial">У</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="settings-section">
-                <h3>Подключение</h3>
+                <h3>🔗 Подключение</h3>
                 <div class="settings-item">
                     <label>Ваш Peer ID</label>
                     <input type="text" id="settingsPeerId" value="" readonly onclick="this.select()">
@@ -966,13 +1158,18 @@
             </div>
 
             <div class="settings-section">
-                <h3>Друзья (<span id="friendsCount">0</span>)</h3>
+                <h3>👥 Друзья (<span id="friendsCount">0</span>)</h3>
                 <div id="settingsFriendsList"></div>
             </div>
 
             <button class="btn" onclick="saveSettings()">Сохранить изменения</button>
         </div>
     </div>
+
+    <!-- Скрытый аудио элемент для рингтона -->
+    <audio id="ringtone" loop>
+        <!-- Генерируем рингтон через Web Audio API -->
+    </audio>
 
     <script>
         // Глобальные переменные
@@ -984,14 +1181,122 @@
         let currentChannel = 'general';
         let messages = {};
         let friends = [];
+        let incomingCallData = null;
+        let ringtoneAudio = null;
 
-        // ИСПРАВЛЕНО: Функция сохранения профиля БЕЗ автоскачивания
+        // Генерация рингтона
+        function createRingtone() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = 440; // Ля первой октавы
+            oscillator.type = 'sine';
+
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+
+            return { audioContext, oscillator, gainNode };
+        }
+
+        function playRingtone() {
+            try {
+                ringtoneAudio = createRingtone();
+                ringtoneAudio.oscillator.start();
+
+                // Создаем мелодию
+                const now = ringtoneAudio.audioContext.currentTime;
+                ringtoneAudio.gainNode.gain.setValueAtTime(0.3, now);
+                ringtoneAudio.gainNode.gain.setValueAtTime(0.3, now + 0.5);
+                ringtoneAudio.gainNode.gain.setValueAtTime(0, now + 1);
+
+                // Повторяем каждые 2 секунды
+                setInterval(() => {
+                    if (ringtoneAudio) {
+                        const t = ringtoneAudio.audioContext.currentTime;
+                        ringtoneAudio.gainNode.gain.setValueAtTime(0.3, t);
+                        ringtoneAudio.gainNode.gain.setValueAtTime(0, t + 1);
+                    }
+                }, 2000);
+            } catch(e) {
+                console.log('Рингтон недоступен');
+            }
+        }
+
+        function stopRingtone() {
+            if (ringtoneAudio) {
+                ringtoneAudio.oscillator.stop();
+                ringtoneAudio.audioContext.close();
+                ringtoneAudio = null;
+            }
+        }
+
+        // Обновление превью цвета при регистрации
+        function updateColorPreview() {
+            const color = document.getElementById('avatarColor').value;
+            const preview = document.getElementById('colorPreview');
+            const username = document.getElementById('username').value.trim();
+            preview.style.background = color;
+            if (username) {
+                document.getElementById('previewInitial').textContent = username[0].toUpperCase();
+            }
+        }
+
+        // Обновление при вводе имени
+        document.addEventListener('DOMContentLoaded', () => {
+            const usernameInput = document.getElementById('username');
+            if (usernameInput) {
+                usernameInput.addEventListener('input', () => {
+                    const username = usernameInput.value.trim();
+                    if (username) {
+                        document.getElementById('previewInitial').textContent = username[0].toUpperCase();
+                    }
+                });
+            }
+        });
+
+        // Обновление превью в настройках
+        function updateSettingsPreview() {
+            const color = document.getElementById('settingsColor').value;
+            const preview = document.getElementById('settingsColorPreview');
+            const username = document.getElementById('settingsUsername').value.trim();
+            preview.style.background = color;
+            if (username) {
+                document.getElementById('settingsPreviewInitial').textContent = username[0].toUpperCase();
+            }
+        }
+
+        // Смена темы
+        function changeTheme(theme) {
+            if (theme === 'light') {
+                document.body.classList.add('light-theme');
+            } else {
+                document.body.classList.remove('light-theme');
+            }
+
+            // Обновляем активную тему в UI
+            document.querySelectorAll('.theme-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            document.querySelector(`.theme-option.${theme}`).classList.add('active');
+
+            // Сохраняем выбор
+            localStorage.setItem('theme', theme);
+        }
+
+        // Загрузка темы
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            changeTheme(savedTheme);
+        }
+
         function saveProfile(profile) {
             localStorage.setItem('discordProfile', JSON.stringify(profile));
             console.log('✅ Профиль сохранен в localStorage');
         }
 
-        // Функция загрузки профиля
         function loadProfile() {
             const saved = localStorage.getItem('discordProfile');
             if (saved) {
@@ -1000,7 +1305,6 @@
             return null;
         }
 
-        // ИСПРАВЛЕНО: Функция сохранения друзей
         function saveFriends() {
             localStorage.setItem('discordFriends', JSON.stringify(friends));
             if (currentUser) {
@@ -1010,7 +1314,6 @@
             console.log('✅ Друзья сохранены:', friends.length);
         }
 
-        // ИСПРАВЛЕНО: Функция загрузки друзей
         function loadFriendsFromStorage() {
             const saved = localStorage.getItem('discordFriends');
             if (saved) {
@@ -1018,7 +1321,6 @@
                 console.log('📖 Загружено друзей:', friends.length);
             }
             
-            // Также пробуем из профиля
             const profile = loadProfile();
             if (profile && profile.friends && profile.friends.length > 0 && friends.length === 0) {
                 friends = profile.friends;
@@ -1026,10 +1328,8 @@
             }
         }
 
-        // Вход
         function login() {
             const username = document.getElementById('username').value.trim();
-            const status = document.getElementById('status').value.trim();
             const avatarColor = document.getElementById('avatarColor').value;
 
             if (!username) {
@@ -1039,7 +1339,6 @@
 
             currentUser = {
                 username,
-                status,
                 avatarColor,
                 peerId: null,
                 friends: []
@@ -1049,31 +1348,26 @@
             initApp();
         }
 
-        // Инициализация приложения
         function initApp() {
             document.getElementById('authScreen').style.display = 'none';
             document.getElementById('appContainer').style.display = 'block';
 
-            // Установка информации о пользователе
             document.getElementById('userName').textContent = currentUser.username;
-            document.getElementById('userStatus').textContent = currentUser.status;
+            document.getElementById('userStatus').textContent = 'Онлайн';
             document.getElementById('userAvatar').textContent = currentUser.username[0].toUpperCase();
             document.getElementById('userAvatar').style.background = currentUser.avatarColor;
 
-            // ИСПРАВЛЕНО: Загружаем друзей ДО инициализации peer
             loadFriendsFromStorage();
+            loadTheme();
 
-            // Инициализация PeerJS
             initPeer();
 
-            // Инициализация сообщений
             if (!messages[currentChannel]) {
                 messages[currentChannel] = [];
             }
             addSystemMessage('Добро пожаловать в чат!');
         }
 
-        // Инициализация PeerJS
         function initPeer() {
             peer = new Peer({
                 host: '0.peerjs.com',
@@ -1096,10 +1390,7 @@
                 document.getElementById('connectionStatus').classList.add('connected');
                 saveProfile(currentUser);
                 
-                // Подключаемся к друзьям
                 connectToFriends();
-                
-                // Обновляем UI
                 loadFriends();
             });
 
@@ -1115,7 +1406,6 @@
                 console.error('❌ Peer error:', err);
                 document.getElementById('connectionStatus').textContent = 'Ошибка подключения ❌';
                 
-                // Пробуем переподключиться
                 setTimeout(() => {
                     if (peer && peer.disconnected) {
                         peer.reconnect();
@@ -1128,7 +1418,6 @@
                 document.getElementById('connectionStatus').textContent = 'Переподключение...';
                 document.getElementById('connectionStatus').classList.remove('connected');
                 
-                // Автоматическое переподключение
                 setTimeout(() => {
                     if (peer && peer.disconnected) {
                         peer.reconnect();
@@ -1137,19 +1426,16 @@
             });
         }
 
-        // Настройка соединения
         function setupConnection(conn) {
             connections[conn.peer] = conn;
 
             conn.on('open', () => {
                 console.log('✅ Соединение установлено с:', conn.peer);
                 
-                // Отправляем информацию о себе
                 conn.send({
                     type: 'userInfo',
                     data: {
                         username: currentUser.username,
-                        status: currentUser.status,
                         avatarColor: currentUser.avatarColor,
                         peerId: peer.id
                     }
@@ -1173,7 +1459,6 @@
             });
         }
 
-        // Обработка данных
         function handleData(data, peerId) {
             switch(data.type) {
                 case 'message':
@@ -1185,7 +1470,6 @@
             }
         }
 
-        // Отправка сообщения
         function sendMessage(text) {
             if (!text.trim()) return;
 
@@ -1198,10 +1482,8 @@
                 channel: currentChannel
             };
 
-            // Добавляем свое сообщение
             addMessage(message);
 
-            // Отправляем всем подключенным
             Object.values(connections).forEach(conn => {
                 if (conn.open) {
                     conn.send({
@@ -1211,14 +1493,12 @@
                 }
             });
 
-            // Сохраняем в историю
             if (!messages[currentChannel]) {
                 messages[currentChannel] = [];
             }
             messages[currentChannel].push(message);
         }
 
-        // Получение сообщения
         function receiveMessage(message, peerId) {
             if (message.channel === currentChannel) {
                 addMessage(message);
@@ -1230,7 +1510,6 @@
             messages[message.channel].push(message);
         }
 
-        // Добавление сообщения в UI
         function addMessage(message) {
             const container = document.getElementById('messagesContainer');
             const messageEl = document.createElement('div');
@@ -1258,7 +1537,6 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        // Системное сообщение
         function addSystemMessage(text) {
             addMessage({
                 author: 'Система',
@@ -1269,7 +1547,6 @@
             });
         }
 
-        // Обработка ввода сообщения
         function handleMessageInput(event) {
             if (event.key === 'Enter') {
                 const input = document.getElementById('messageInput');
@@ -1278,7 +1555,6 @@
             }
         }
 
-        // Добавление друга
         function showAddFriendModal() {
             document.getElementById('addFriendModal').style.display = 'flex';
         }
@@ -1301,7 +1577,6 @@
                 return;
             }
 
-            // Проверяем, не добавлен ли уже
             if (friends.find(f => f.peerId === peerId)) {
                 alert('Друг уже добавлен!');
                 return;
@@ -1311,7 +1586,6 @@
                 peerId,
                 name,
                 username: name,
-                status: 'Оффлайн',
                 avatarColor: '#' + Math.floor(Math.random()*16777215).toString(16)
             };
 
@@ -1319,7 +1593,6 @@
             saveFriends();
             loadFriends();
 
-            // Подключаемся к другу
             connectToPeer(peerId);
 
             closeModal('addFriendModal');
@@ -1353,17 +1626,14 @@
             const friend = friends.find(f => f.peerId === peerId);
             if (friend) {
                 friend.username = info.username;
-                friend.status = info.status;
                 friend.avatarColor = info.avatarColor;
                 saveFriends();
                 loadFriends();
             } else {
-                // Добавляем нового друга автоматически
                 friends.push({
                     peerId,
                     name: info.username,
                     username: info.username,
-                    status: info.status,
                     avatarColor: info.avatarColor
                 });
                 saveFriends();
@@ -1399,7 +1669,6 @@
             const membersContainer = document.getElementById('onlineMembers');
             membersContainer.innerHTML = '';
 
-            // Добавляем себя
             const myItem = document.createElement('div');
             myItem.className = 'member-item';
             myItem.innerHTML = `
@@ -1411,7 +1680,6 @@
             `;
             membersContainer.appendChild(myItem);
 
-            // Добавляем онлайн друзей
             let onlineCount = 1;
             friends.forEach(friend => {
                 if (connections[friend.peerId] && connections[friend.peerId].open) {
@@ -1432,18 +1700,15 @@
             document.getElementById('onlineCount').textContent = onlineCount;
         }
 
-        // Переключение каналов
         function switchChannel(channel) {
             currentChannel = channel;
             document.getElementById('channelName').textContent = channel;
             
-            // Обновляем активный канал в UI
             document.querySelectorAll('.channel-item').forEach(el => {
                 el.classList.remove('active');
             });
             event.target.classList.add('active');
 
-            // Загружаем сообщения канала
             const container = document.getElementById('messagesContainer');
             container.innerHTML = '';
             
@@ -1452,18 +1717,18 @@
             }
         }
 
-        // ИСПРАВЛЕНО: Настройки
         function showSettings() {
             const modal = document.getElementById('settingsModal');
             
-            // Заполняем данные
             document.getElementById('settingsUsername').value = currentUser.username;
-            document.getElementById('settingsStatus').value = currentUser.status;
             document.getElementById('settingsColor').value = currentUser.avatarColor;
             document.getElementById('settingsPeerId').value = peer.id || 'Подключение...';
             document.getElementById('friendsCount').textContent = friends.length;
             
-            // Список друзей
+            // Обновляем превью
+            document.getElementById('settingsColorPreview').style.background = currentUser.avatarColor;
+            document.getElementById('settingsPreviewInitial').textContent = currentUser.username[0].toUpperCase();
+            
             const settingsFriendsList = document.getElementById('settingsFriendsList');
             settingsFriendsList.innerHTML = '';
             
@@ -1480,35 +1745,37 @@
                 `;
                 settingsFriendsList.appendChild(friendEl);
             });
+
+            // Обновляем активную тему
+            const currentTheme = document.body.classList.contains('light-theme') ? 'light' : 'dark';
+            document.querySelectorAll('.theme-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            document.querySelector(`.theme-option.${currentTheme}`).classList.add('active');
             
             modal.style.display = 'flex';
         }
 
         function saveSettings() {
             const newUsername = document.getElementById('settingsUsername').value.trim();
-            const newStatus = document.getElementById('settingsStatus').value.trim();
             const newColor = document.getElementById('settingsColor').value;
             
             if (newUsername) {
                 currentUser.username = newUsername;
-                currentUser.status = newStatus;
                 currentUser.avatarColor = newColor;
                 
                 document.getElementById('userName').textContent = newUsername;
-                document.getElementById('userStatus').textContent = newStatus;
                 document.getElementById('userAvatar').textContent = newUsername[0].toUpperCase();
                 document.getElementById('userAvatar').style.background = newColor;
                 
                 saveProfile(currentUser);
                 
-                // Отправляем обновленную информацию всем
                 Object.values(connections).forEach(conn => {
                     if (conn.open) {
                         conn.send({
                             type: 'userInfo',
                             data: {
                                 username: currentUser.username,
-                                status: currentUser.status,
                                 avatarColor: currentUser.avatarColor,
                                 peerId: peer.id
                             }
@@ -1525,7 +1792,6 @@
             if (confirm('Удалить этого друга?')) {
                 const friend = friends[index];
                 
-                // Закрываем соединение
                 if (connections[friend.peerId]) {
                     connections[friend.peerId].close();
                     delete connections[friend.peerId];
@@ -1534,7 +1800,7 @@
                 friends.splice(index, 1);
                 saveFriends();
                 loadFriends();
-                showSettings(); // Обновляем модальное окно
+                showSettings();
                 updateOnlineMembers();
             }
         }
@@ -1550,19 +1816,34 @@
             }
         }
 
-        // Видео звонок
+        // Видео/аудио звонки с улучшенным звуком
         async function startVideoCall() {
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({
-                    video: true,
-                    audio: true
+                    video: {
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        facingMode: 'user'
+                    },
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true,
+                        sampleRate: 48000,
+                        channelCount: 2
+                    }
                 });
 
                 document.getElementById('localVideo').srcObject = localStream;
                 document.getElementById('videoCall').style.display = 'flex';
 
                 Object.keys(connections).forEach(peerId => {
-                    const call = peer.call(peerId, localStream);
+                    const call = peer.call(peerId, localStream, {
+                        sdpTransform: (sdp) => {
+                            // Оптимизируем SDP для лучшего качества
+                            return sdp.replace('useinbandfec=1', 'useinbandfec=1; stereo=1; maxaveragebitrate=510000');
+                        }
+                    });
                     handleCall(call);
                 });
             } catch(err) {
@@ -1575,14 +1856,25 @@
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({
                     video: false,
-                    audio: true
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true,
+                        sampleRate: 48000,
+                        channelCount: 2,
+                        volume: 1.0
+                    }
                 });
 
                 document.getElementById('videoCall').style.display = 'flex';
                 document.getElementById('localVideo').style.display = 'none';
 
                 Object.keys(connections).forEach(peerId => {
-                    const call = peer.call(peerId, localStream);
+                    const call = peer.call(peerId, localStream, {
+                        sdpTransform: (sdp) => {
+                            return sdp.replace('useinbandfec=1', 'useinbandfec=1; stereo=1; maxaveragebitrate=510000');
+                        }
+                    });
                     handleCall(call);
                 });
             } catch(err) {
@@ -1594,7 +1886,14 @@
         async function shareScreen() {
             try {
                 screenStream = await navigator.mediaDevices.getDisplayMedia({
-                    video: true
+                    video: {
+                        cursor: 'always'
+                    },
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        sampleRate: 48000
+                    }
                 });
 
                 document.getElementById('videoCall').style.display = 'flex';
@@ -1614,8 +1913,47 @@
         }
 
         function handleIncomingCall(call) {
-            call.answer(localStream);
-            handleCall(call);
+            incomingCallData = call;
+            
+            // Показываем уведомление о входящем звонке
+            const friend = friends.find(f => f.peerId === call.peer) || {
+                username: 'Пользователь',
+                avatarColor: '#5865f2'
+            };
+            
+            document.getElementById('callerName').textContent = friend.username;
+            const callerAvatar = document.getElementById('callerAvatar');
+            callerAvatar.style.background = friend.avatarColor;
+            callerAvatar.textContent = friend.username[0].toUpperCase();
+            
+            document.getElementById('incomingCall').style.display = 'block';
+            
+            // Воспроизводим рингтон
+            playRingtone();
+        }
+
+        function acceptCall() {
+            stopRingtone();
+            document.getElementById('incomingCall').style.display = 'none';
+            
+            if (incomingCallData) {
+                incomingCallData.answer(localStream);
+                handleCall(incomingCallData);
+                incomingCallData = null;
+                
+                // Показываем видеозвонок
+                document.getElementById('videoCall').style.display = 'flex';
+            }
+        }
+
+        function rejectCall() {
+            stopRingtone();
+            document.getElementById('incomingCall').style.display = 'none';
+            
+            if (incomingCallData) {
+                incomingCallData.close();
+                incomingCallData = null;
+            }
         }
 
         function handleCall(call) {
@@ -1641,6 +1979,9 @@
                 video.autoplay = true;
                 video.playsinline = true;
                 video.srcObject = stream;
+                
+                // Улучшенные настройки аудио
+                video.volume = 1.0;
                 
                 const friend = friends.find(f => f.peerId === peerId);
                 const label = document.createElement('div');
@@ -1736,17 +2077,16 @@
             alert('Меню сервера');
         }
 
-        // Автозагрузка профиля при запуске
         window.onload = () => {
             const profile = loadProfile();
             if (profile) {
                 document.getElementById('username').value = profile.username;
-                document.getElementById('status').value = profile.status;
                 document.getElementById('avatarColor').value = profile.avatarColor;
+                updateColorPreview();
             }
+            loadTheme();
         };
 
-        // Периодическое обновление
         setInterval(() => {
             updateOnlineMembers();
         }, 10000);
